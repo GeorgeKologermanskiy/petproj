@@ -1,0 +1,16 @@
+[package]
+name = "auth_service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4.4.0"
+clap = { version = "4.4.7", features = ["derive"] }
+lettre = "0.11.2"
+mongodb = "2.7.1"
+redis = "0.23.3"
+redis-test = "0.2.3"
+serde = { version = "1.0.193", features = ["derive"] }
+serde_json = "1.0.108"
+sha256 = "1.4.0"
+uuid = "1.6.1"

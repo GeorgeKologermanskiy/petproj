@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    environment:
+    #  MONGO_INITDB_ROOT_USERNAME: admin
+    #  MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: auth_service
+    #  MONGO_AUTH_SERVICE_USERNAME: "${MONGO_AUTH_SERVICE_USERNAME}"
+    #  MONGO_AUTH_SERVICE_PASSWORD: "${MONGO_AUTH_SERVICE_PASSWORD}"
+    volumes:
+    #  - ./mongod.conf:/etc/mongod.conf
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+     - "127.0.0.1:27017:27017"
+    #entrypoint: ["mongod", "--config", "/etc/mongod.conf"]
