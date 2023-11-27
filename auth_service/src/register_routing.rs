@@ -1,11 +1,11 @@
-use actix_web::{web, Responder, HttpResponse, http::header::ContentType};
-use serde::{Serialize, Deserialize};
+use actix_web::{http::header::ContentType, web, HttpResponse, Responder};
+use serde::{Deserialize, Serialize};
 use sha256::digest;
-//use auth_service::mongo_adapter;
-//use auth_service::service_state;
 
-use crate::mongo_adapter::{UserDocument, InsertUserError};
-use crate::service_state::ServiceAppState;
+use super::{
+    mongo_adapter::{InsertUserError, UserDocument},
+    service_state::ServiceAppState,
+};
 
 #[derive(Deserialize)]
 struct RegisterInputInfo {
@@ -20,14 +20,17 @@ struct RegisterResponse {
     msg: String,
 }
 
-async fn register_account(state: web::Data<ServiceAppState>, info: web::Json<RegisterInputInfo>) -> impl Responder {
+async fn register_account(
+    state: web::Data<ServiceAppState>,
+    info: web::Json<RegisterInputInfo>,
+) -> impl Responder {
     // TODO: add params validation
     let user = UserDocument {
         user_id: digest(&info.username),
         username: info.username.clone(),
         email: Some(info.email.clone()),
         email_confirmed: false,
-        password: info.password.clone()
+        password: info.password.clone(),
     };
     let mut storage_adapter = state.storage_adapter.lock().unwrap();
 
@@ -35,56 +38,59 @@ async fn register_account(state: web::Data<ServiceAppState>, info: web::Json<Reg
     let insert_result = storage_adapter.insert_user(&user).await;
     if insert_result.is_err() {
         let bad_resp = match insert_result.err().unwrap() {
-            InsertUserError::FoundUserWithSameID => {
-                RegisterResponse {
-                    code: 1,
-                    msg: String::from(""),
-                }
+            InsertUserError::FoundUserWithSameID => RegisterResponse {
+                code: 1,
+                msg: String::from(""),
             },
-            InsertUserError::InternalError => {
-                RegisterResponse {
-                    code: 500,
-                    msg: String::from("Internal service error"),
-                }
-            }
+            InsertUserError::InternalError => RegisterResponse {
+                code: 500,
+                msg: String::from("Internal service error"),
+            },
         };
         return HttpResponse::Ok()
-                .content_type(ContentType::json())
-                .body(serde_json::to_string(&bad_resp).unwrap());
+            .content_type(ContentType::json())
+            .body(serde_json::to_string(&bad_resp).unwrap());
     }
 
     // Generate confirmation
     let confirm_result = storage_adapter
-            .insert_register_confirmation(user.user_id.clone()).await;
+        .insert_register_confirmation(user.user_id.clone())
+        .await;
     if confirm_result.is_err() {
-        return HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(serde_json::to_string(&RegisterResponse {
+        return HttpResponse::Ok().content_type(ContentType::json()).body(
+            serde_json::to_string(&RegisterResponse {
                 code: 500,
                 msg: String::from("Internal service error"),
-            }).unwrap());
+            })
+            .unwrap(),
+        );
     }
 
     // TODO: Generate link, send it to email
-    let link = format!("http://127.0.0.1/api/v1/confirm?token={}",
-        confirm_result.ok().unwrap());
+    let link = format!(
+        "http://127.0.0.1/api/v1/confirm?token={}",
+        confirm_result.ok().unwrap()
+    );
     println!("Generated link: {}", link);
 
-    HttpResponse::Ok()
-        .content_type(ContentType::json())
-        .body(serde_json::to_string(&RegisterResponse {
+    HttpResponse::Ok().content_type(ContentType::json()).body(
+        serde_json::to_string(&RegisterResponse {
             code: 0,
             msg: String::from("Registered account, check email"),
-        }).unwrap())
+        })
+        .unwrap(),
+    )
 }
 
 #[derive(Deserialize)]
 struct ConfirmRegistrationInfo {
-    token: String
+    token: String,
 }
 
 async fn confirm_registration(
-    _state: web::Data<ServiceAppState>, _info: web::Query<ConfirmRegistrationInfo>) -> impl Responder {
+    _state: web::Data<ServiceAppState>,
+    _info: web::Query<ConfirmRegistrationInfo>,
+) -> impl Responder {
     "Confirmed"
 }
 
