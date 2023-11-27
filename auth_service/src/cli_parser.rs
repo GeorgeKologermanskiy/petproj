@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use std::fs;
+use std::path::PathBuf;
 
 use clap::Parser;
 
@@ -18,13 +18,13 @@ struct CLIArgs {
     storage_address: String,
 
     #[arg(long)]
-    logger_file: Option<PathBuf>
+    logger_file: Option<PathBuf>,
 }
 
 pub struct CLIParsedArgs {
     service_port: u16,
     storage_address: String,
-    logger_file: Option<PathBuf>
+    logger_file: Option<PathBuf>,
 }
 
 impl CLIParsedArgs {
@@ -37,7 +37,7 @@ impl CLIParsedArgs {
                     if !md.is_file() {
                         panic!("Not a file");
                     }
-                },
+                }
                 Err(err) => {
                     panic!("{err:}");
                 }
@@ -46,7 +46,7 @@ impl CLIParsedArgs {
         Self {
             service_port: args.service_port,
             storage_address: args.storage_address,
-            logger_file: args.logger_file
+            logger_file: args.logger_file,
         }
     }
 

@@ -1,7 +1,7 @@
-//use crate::auth_service::redis_adapter;
-/*
 use redis::ConnectionLike;
 use redis_test::{MockCmd, MockRedisConnection};
+
+use crate::redis_adapter::RedisConnectionPool;
 
 pub struct RedisMockConnectionPool {
     connection: MockRedisConnection,
@@ -9,14 +9,11 @@ pub struct RedisMockConnectionPool {
 
 pub fn init_mock(mocks: Vec<MockCmd>) -> RedisMockConnectionPool {
     let connection = MockRedisConnection::new(mocks);
-    RedisMockConnectionPool {
-        connection: connection,
-    } 
+    RedisMockConnectionPool { connection }
 }
 
-impl auth_service::redis_adapter::RedisConnectionPool for RedisMockConnectionPool {
+impl RedisConnectionPool for RedisMockConnectionPool {
     fn get_connection(&mut self) -> Option<Box<dyn ConnectionLike>> {
-        Some(Box::new(&self.connection))
-    } 
+        Some(Box::new(self.connection.clone()))
+    }
 }
-*/

@@ -7,6 +7,7 @@ edition = "2021"
 actix-web = "4.4.0"
 clap = { version = "4.4.7", features = ["derive"] }
 lettre = "0.11.2"
+log4rs = "1.2.0"
 mongodb = "2.7.1"
 redis = "0.23.3"
 redis-test = "0.2.3"

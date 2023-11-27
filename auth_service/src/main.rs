@@ -1,39 +1,44 @@
 use actix_web::{web, App, HttpServer};
-
-use auth_service::cli_parser::CLIParsedArgs;
-use auth_service::email_adapter::EmailAdapter;
-use auth_service::mongo_adapter::StorageAdapter;
-use auth_service::service_state::{ServiceAppConfig, ServiceAppState};
-
 use std::sync::Mutex;
 
+pub mod cli_parser;
+use cli_parser::CLIParsedArgs;
+
+pub mod email_adapter;
+use email_adapter::EmailAdapter;
+
 pub mod logger;
+
+pub mod mongo_adapter;
+use mongo_adapter::StorageAdapter;
+
 pub mod redis_adapter;
 pub mod register_routing;
-pub mod mongo_adapter;
+
 pub mod service_state;
-//pub mod cli_parser;
+use service_state::{ServiceAppConfig, ServiceAppState};
+
+#[cfg(test)]
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let cli = CLIParsedArgs::new();
     let config = ServiceAppConfig::new(String::from("auth_service"));
-    let email_adapter = EmailAdapter::new(config.get_email_credentials());
+    let _email_adapter = EmailAdapter::new(config.get_email_credentials());
     //let adapter = redis_adapter::create_redis_adapter(cli.get_storage_address()).unwrap();
-    let adapter = 
-        match StorageAdapter::new(
-            cli.get_storage_address(),
-            config.get_app_name()).await {
-                Ok(res) => res,
-                Err(err) => {
-                    panic!("{:?}", err);
-                }
-        };
-    
+    let adapter = match StorageAdapter::new(cli.get_storage_address(), config.get_app_name()).await
+    {
+        Ok(res) => res,
+        Err(err) => {
+            panic!("{:?}", err);
+        }
+    };
+
     match cli.get_logger_file() {
         Some(path) => {
             logger::init_logger_by_file(path);
-        },
+        }
         None => {
             logger::init_default_logger();
         }

@@ -1,5 +1,9 @@
-use mongodb::{bson::{doc, Bson}, options::{ClientOptions, ServerApi, ServerApiVersion}, Client};
-use serde::{Serialize, Deserialize};
+use mongodb::{
+    bson::doc,
+    options::{ClientOptions, ServerApi, ServerApiVersion},
+    Client,
+};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub struct StorageAdapter {
@@ -9,7 +13,7 @@ pub struct StorageAdapter {
 
 pub enum InsertUserError {
     FoundUserWithSameID,
-    InternalError
+    InternalError,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -28,7 +32,6 @@ struct ConfirmDocument {
 }
 
 impl StorageAdapter {
-
     pub async fn new(address: &String, db_name: &String) -> Result<Self, mongodb::error::Error> {
         let mut client_options = ClientOptions::parse(address).await?;
 
@@ -51,7 +54,7 @@ impl StorageAdapter {
             Ok(res) => {
                 println!("{:?}", res);
                 Ok(())
-            },
+            }
             Err(e) => {
                 println!("{:?}", e);
                 Err(InsertUserError::InternalError)
@@ -60,8 +63,10 @@ impl StorageAdapter {
     }
 
     pub async fn insert_register_confirmation(&mut self, user_id: String) -> Result<String, ()> {
-        let collection: mongodb::Collection<ConfirmDocument> =
-            self.client.database(&self.db_name).collection("confirmations");
+        let collection: mongodb::Collection<ConfirmDocument> = self
+            .client
+            .database(&self.db_name)
+            .collection("confirmations");
         let token = Uuid::new_v4().to_string();
         let confirmation = ConfirmDocument {
             token: token.clone(),
@@ -72,12 +77,11 @@ impl StorageAdapter {
             Ok(res) => {
                 println!("{:?}", res);
                 Ok(token)
-            },
+            }
             Err(e) => {
                 println!("{:?}", e);
                 Err(())
             }
         }
     }
-
 }

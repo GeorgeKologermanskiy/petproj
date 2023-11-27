@@ -11,7 +11,6 @@ pub struct ServiceAppConfig {
 }
 
 impl ServiceAppConfig {
-
     pub fn new(app_name: String) -> Self {
         let email_client_host = Self::get_var("EMAIL_CLIENT_HOST");
         let email_client_username = Self::get_var("EMAIL_CLIENT_USERNAME");
@@ -25,7 +24,7 @@ impl ServiceAppConfig {
 
         Self {
             app_name,
-            email_adapter_credentials : credentials,
+            email_adapter_credentials: credentials,
         }
     }
 
@@ -45,7 +44,6 @@ impl ServiceAppConfig {
     pub fn get_email_credentials(&self) -> &EmailAdapterCredentials {
         &self.email_adapter_credentials
     }
-
 }
 
 pub struct ServiceAppState {
@@ -54,7 +52,7 @@ pub struct ServiceAppState {
 }
 
 //impl ServiceAppState {
-    //pub fn get_adapter(&mut self) -> &mut mongo_adapter::StorageAdapter {
-    //    &mut self.storage_adapter
-    //}
+//pub fn get_adapter(&mut self) -> &mut mongo_adapter::StorageAdapter {
+//    &mut self.storage_adapter
+//}
 //}
